@@ -24,6 +24,52 @@ button,input{font:inherit}button{cursor:pointer}.app{max-width:1180px;margin:0 a
 .auth-mark{width:48px;height:48px;border-radius:15px;background:linear-gradient(135deg,#526df5,#8a9cff);display:grid;place-items:center;color:white;font-size:24px;margin-bottom:16px}
 .auth-card h1{font-size:23px;margin:0}.auth-sub{color:var(--muted);font-size:13px;margin:7px 0 22px}.auth-card label{display:block;font-size:12px;color:var(--muted);margin:13px 0 6px}.auth-card input{width:100%;padding:12px;border:1px solid #dfe4ed;border-radius:10px;font:inherit}.auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:18px}.auth-message{background:#f3f5fa;color:#59647a;padding:10px 12px;border-radius:9px;font-size:12px;min-height:38px}.auth-foot{font-size:11px;color:var(--muted);margin:14px 0 0}.auth-warning{background:#fff3df;color:#7d5414;border-radius:10px;padding:12px;font-size:12px;margin:14px 0}.account-email{align-self:center;color:var(--muted);font-size:12px;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:560px){.auth-card{padding:23px}.account-email{max-width:100%;width:100%}}
+.chart-wrap {
+  position: relative;
+}
+
+.chart-tooltip {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  min-width: 190px;
+  background: rgba(255,255,255,.97);
+  border: 1px solid #e5e9f2;
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 8px 25px rgba(25,40,75,.15);
+  pointer-events: none;
+  font-size: 12px;
+}
+
+.tooltip-date {
+  font-weight: 750;
+  font-size: 13px;
+  margin-bottom: 9px;
+}
+
+.tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 5px 0;
+}
+
+.tooltip-name {
+  color: #68738a;
+}
+
+.tooltip-value {
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.tooltip-total {
+  border-top: 1px solid #e8ecf3;
+  padding-top: 8px;
+  margin-top: 8px;
+  font-weight: 750;
+}
 </style>
 </head>
 <body>
@@ -72,8 +118,21 @@ button,input{font:inherit}button{cursor:pointer}.app{max-width:1180px;margin:0 a
 
   <section class="content-grid">
     <div class="panel">
-      <div class="panel-title"><h2>資產變化趨勢</h2><div class="chart-legend"><span><i class="legend-dot" style="background:#526df5"></i>總資產</span></div></div>
-      <div class="chart-wrap"><canvas id="trendChart"></canvas><div class="chart-empty" id="chartEmpty">新增至少一筆紀錄以查看趨勢</div></div>
+      
+    <div class="panel-title" style="flex-wrap:wrap">
+      <h2>資產變化趨勢</h2>
+      <select id="chartMode" style="padding:7px 10px;border:1px solid #e8ecf3;border-radius:8px;background:white;color:#46516a">
+        <option value="total">總資產</option>
+        <option value="all">四種資產</option>
+        <option value="twdSec">臺幣證券</option>
+        <option value="twdBank">臺幣銀行</option>
+        <option value="usdSec">美金複委託證券</option>
+        <option value="usdBank">美金銀行</option>
+      </select>
+    </div>
+    <div class="chart-legend" id="chartLegend" style="margin-bottom:12px"></div>
+
+      <div class="chart-wrap"><canvas id="trendChart"></canvas><div class="chart-empty" id="chartEmpty">新增至少一筆紀錄以查看趨勢</div><div id="chartTooltip" class="chart-tooltip"></div></div>
     </div>
     <div class="panel">
       <div class="panel-title"><h2>資產配置</h2><span class="muted" style="font-size:11px" id="allocDate">最新紀錄</span></div>
@@ -189,28 +248,330 @@ button,input{font:inherit}button{cursor:pointer}.app{max-width:1180px;margin:0 a
     fields.forEach((k,i)=>document.getElementById(['kpiTwdSec','kpiTwdBank','kpiUsdSec','kpiUsdBank'][i]).textContent=cur?money(cur[k]):'—');
     renderChart(list); renderAllocation(cur); renderTable(list); renderGoal(curTotal);
   }
-  function renderChart(list){
-    const canvas=document.getElementById('trendChart'), empty=document.getElementById('chartEmpty');
-    const rect=canvas.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
-    const w=Math.max(280,rect.width), h=Math.max(200,rect.height);
-    canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
-    const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
-    if(!list.length){empty.style.display='grid';return;} empty.style.display='none';
-    const vals=list.map(total), minV=Math.min(...vals),maxV=Math.max(...vals);
-    const spread=Math.max(maxV-minV,Math.max(maxV*.025,1000));
-    const lo=minV-spread*.25,hi=maxV+spread*.25;
-    const left=66,right=17,top=18,bottom=42,plotW=w-left-right,plotH=h-top-bottom;
-    const x=i=>list.length===1?left+plotW/2:left+i*plotW/(list.length-1);
-    const y=v=>top+(hi-v)/(hi-lo)*plotH;
-    ctx.font='11px -apple-system,BlinkMacSystemFont,sans-serif';ctx.textAlign='right';ctx.textBaseline='middle';
-    for(let j=0;j<4;j++){const val=lo+(hi-lo)*j/3, yy=y(val);ctx.strokeStyle='#edf0f5';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(left,yy);ctx.lineTo(w-right,yy);ctx.stroke();ctx.fillStyle='#8a94a7';ctx.fillText((val/1000000).toFixed(2)+'M',left-10,yy);}
-    const pts=vals.map((v,i)=>[x(i),y(v)]);
-    const grad=ctx.createLinearGradient(0,top,0,h-bottom);grad.addColorStop(0,'rgba(82,109,245,.19)');grad.addColorStop(1,'rgba(82,109,245,0)');
-    ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.lineTo(pts.at(-1)[0],h-bottom);ctx.lineTo(pts[0][0],h-bottom);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
-    ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.strokeStyle='#526df5';ctx.lineWidth=2.8;ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke();
-    pts.forEach((p,i)=>{ctx.beginPath();ctx.arc(p[0],p[1],4.5,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=2.5;ctx.strokeStyle='#526df5';ctx.stroke();ctx.fillStyle='#66728a';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(list[i].date.slice(5).replace('-','/'),p[0],h-bottom+13);});
-    if(list.length===1){ctx.fillStyle='#526df5';ctx.textAlign='left';ctx.fillText(money(vals[0]),pts[0][0]+10,pts[0][1]-17);}
+  
+function renderChart(list) {
+  const canvas = document.getElementById('trendChart');
+  const empty = document.getElementById('chartEmpty');
+  const mode = document.getElementById('chartMode')?.value || 'total';
+  const legend = document.getElementById('chartLegend');
+
+  const datasets = [
+    { key: 'total', name: '總資產', color: '#526df5' },
+    { key: 'twdSec', name: '臺幣證券', color: '#526df5' },
+    { key: 'twdBank', name: '臺幣銀行', color: '#18a58a' },
+    { key: 'usdSec', name: '美金複委託證券', color: '#e5a43b' },
+    { key: 'usdBank', name: '美金銀行', color: '#9b7bea' }
+  ];
+
+  const selected = mode === 'total'
+    ? [datasets[0]]
+    : mode === 'all'
+      ? datasets.slice(1)
+      : datasets.filter(ds => ds.key === mode);
+
+  legend.innerHTML = selected.map(ds => `
+    <span>
+      <i class="legend-dot" style="background:${ds.color}"></i>
+      ${ds.name}
+    </span>
+  `).join('');
+
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const w = Math.max(280, rect.width);
+  const h = Math.max(200, rect.height);
+
+  canvas.width = Math.round(w * dpr);
+  canvas.height = Math.round(h * dpr);
+
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+
+  if (!list.length) {
+    empty.style.display = 'grid';
+    return;
   }
+  empty.style.display = 'none';
+
+  // 取得目前模式的數據
+  const values = selected.flatMap(ds =>
+    list.map(r => ds.key === 'total'
+      ? total(r)
+      : Number(r[ds.key]) || 0
+    )
+  );
+
+  const maxV = Math.max(...values, 1000);
+  const minV = Math.min(...values, 0);
+  const spread = Math.max(maxV - minV, maxV * 0.1, 1000);
+
+  const lo = Math.max(0, minV - spread * 0.1);
+  const hi = maxV + spread * 0.15;
+
+  const left = 70, right = 20, top = 20, bottom = 42;
+  const plotW = w - left - right;
+  const plotH = h - top - bottom;
+
+  const x = i => list.length === 1
+    ? left + plotW / 2
+    : left + i * plotW / (list.length - 1);
+
+  const y = v => top + (hi - v) / (hi - lo) * plotH;
+  // 保存圖表座標，供滑鼠互動使用
+  window.chartPoints = list.map((r, i) => ({
+    x: x(i),
+    date: r.date,
+    record: r
+  }));
+
+  window.chartPlot = {
+    left,
+    right,
+    top,
+    bottom,
+    width: w,
+    height: h
+  };
+
+  const formatAxis = v => {
+    if (v >= 1000000) return (v / 1000000).toFixed(2) + 'M';
+    if (v >= 10000) return (v / 10000).toFixed(1) + '萬';
+    return Math.round(v).toLocaleString('en-US');
+  };
+
+  // Y 軸
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+
+  for (let j = 0; j <= 4; j++) {
+    const val = lo + (hi - lo) * j / 4;
+    const yy = y(val);
+
+    ctx.beginPath();
+    ctx.moveTo(left, yy);
+    ctx.lineTo(w - right, yy);
+    ctx.strokeStyle = '#edf0f5';
+    ctx.stroke();
+
+    ctx.fillStyle = '#8a94a7';
+    ctx.fillText(formatAxis(val), left - 10, yy);
+  }
+
+  // X 軸日期
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillStyle = '#66728a';
+
+  const step = Math.max(1, Math.ceil(list.length / 8));
+
+  list.forEach((r, i) => {
+    if (i % step === 0 || i === list.length - 1) {
+      ctx.fillText(
+        r.date.slice(5).replace('-', '/'),
+        x(i),
+        h - bottom + 13
+      );
+    }
+  });
+
+  // 繪製折線
+  selected.forEach(ds => {
+    const points = list.map((r, i) => ({
+      x: x(i),
+      y: y(ds.key === 'total'
+        ? total(r)
+        : Number(r[ds.key]) || 0
+      )
+    }));
+
+    ctx.beginPath();
+
+    points.forEach((p, i) => {
+      if (i === 0) ctx.moveTo(p.x, p.y);
+      else ctx.lineTo(p.x, p.y);
+    });
+
+    ctx.strokeStyle = ds.color;
+    ctx.lineWidth = 2.8;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    points.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = ds.color;
+      ctx.stroke();
+    });
+  });
+}
+
+// 切換圖表模式時重新繪製
+document.getElementById('chartMode').addEventListener('change', () => {
+  renderChart(sorted());
+});
+
+// ===============================
+// Chart Tooltip 滑鼠互動
+// ===============================
+
+const chartCanvas = document.getElementById('trendChart');
+const chartTooltip = document.getElementById('chartTooltip');
+const chartWrap = document.getElementById('chartWrap');
+
+function showChartTooltip(event) {
+
+  if (!window.chartPoints || !window.chartPoints.length) {
+    return;
+  }
+
+  const rect = chartCanvas.getBoundingClientRect();
+
+  // 將滑鼠位置轉換成 Canvas 內部座標
+  const mouseX = event.clientX - rect.left;
+  const mouseY = event.clientY - rect.top;
+
+  const plot = window.chartPlot;
+
+  // 不在繪圖區域內就隱藏
+  if (
+    mouseX < plot.left ||
+    mouseX > plot.width - plot.right ||
+    mouseY < plot.top ||
+    mouseY > plot.height - plot.bottom
+  ) {
+    chartTooltip.style.display = 'none';
+    return;
+  }
+
+  // 找到距離滑鼠最近的資料點
+  const points = window.chartPoints;
+
+  let nearest = points.reduce((best, point) => {
+    return Math.abs(point.x - mouseX) <
+      Math.abs(best.x - mouseX)
+      ? point
+      : best;
+  });
+
+  const r = nearest.record;
+  const mode = document.getElementById('chartMode').value;
+
+  let html = `
+    <div class="tooltip-date">
+      ${r.date}
+    </div>
+  `;
+
+  const items = [
+    {key:'twdSec', name:'臺幣證券', color:'#526df5'},
+    {key:'twdBank', name:'臺幣銀行', color:'#18a58a'},
+    {key:'usdSec', name:'美金複委託證券', color:'#e5a43b'},
+    {key:'usdBank', name:'美金銀行', color:'#9b7bea'}
+  ];
+
+  if (mode === 'total') {
+
+    html += `
+      <div class="tooltip-row">
+        <span class="tooltip-name">總資產</span>
+        <span class="tooltip-value">
+          ${money(total(r))}
+        </span>
+      </div>
+    `;
+
+  } else if (mode === 'all') {
+
+    items.forEach(item => {
+      html += `
+        <div class="tooltip-row">
+          <span class="tooltip-name">
+            <span style="color:${item.color}">●</span>
+            ${item.name}
+          </span>
+          <span class="tooltip-value">
+            ${money(r[item.key])}
+          </span>
+        </div>
+      `;
+    });
+
+    html += `
+      <div class="tooltip-row tooltip-total">
+        <span>總資產</span>
+        <span>${money(total(r))}</span>
+      </div>
+    `;
+
+  } else {
+
+    const item = items.find(item => item.key === mode);
+
+    if (item) {
+      html += `
+        <div class="tooltip-row">
+          <span class="tooltip-name">
+            <span style="color:${item.color}">●</span>
+            ${item.name}
+          </span>
+          <span class="tooltip-value">
+            ${money(r[item.key])}
+          </span>
+        </div>
+      `;
+    }
+  }
+
+  chartTooltip.innerHTML = html;
+  chartTooltip.style.display = 'block';
+
+  // Tooltip 位置限制在圖表範圍內
+  const tooltipWidth = chartTooltip.offsetWidth;
+  const tooltipHeight = chartTooltip.offsetHeight;
+
+  let left = mouseX + 15;
+  let top = mouseY - tooltipHeight / 2;
+
+  if (left + tooltipWidth > chartWrap.clientWidth) {
+    left = mouseX - tooltipWidth - 15;
+  }
+
+  top = Math.max(
+    5,
+    Math.min(top, chartWrap.clientHeight - tooltipHeight - 5)
+  );
+
+  chartTooltip.style.left = left + 'px';
+  chartTooltip.style.top = top + 'px';
+}
+
+// 滑鼠移動
+chartCanvas.addEventListener('mousemove', showChartTooltip);
+
+// 滑鼠離開
+chartCanvas.addEventListener('mouseleave', () => {
+  chartTooltip.style.display = 'none';
+});
+
+// 手機點擊
+chartCanvas.addEventListener('click', showChartTooltip);
+
+// 觸控操作
+chartCanvas.addEventListener('touchstart', event => {
+  const touch = event.touches[0];
+
+  showChartTooltip({
+    clientX: touch.clientX,
+    clientY: touch.clientY
+  });
+}, {passive: true});
+
   function renderAllocation(cur){
     const donut=document.getElementById('donut'),legend=document.getElementById('allocLegend');
     if(!cur){donut.style.background='#edf0f6';legend.innerHTML='<span class="muted">尚無資產資料</span>';document.getElementById('donutTotal').textContent='—';return;}
