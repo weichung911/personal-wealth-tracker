@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#f5f7fb" />
+<title>資產儀表板｜個人資產追蹤</title>
+<style>
+:root{--bg:#f5f7fb;--surface:#fff;--ink:#182235;--muted:#778197;--line:#e8ecf3;--blue:#526df5;--blue2:#8294ff;--teal:#18a58a;--amber:#e5a43b;--purple:#9b7bea;--red:#d85b6b;--shadow:0 8px 30px rgba(28,45,82,.055)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;font-size:14px;line-height:1.55}
+button,input{font:inherit}button{cursor:pointer}.app{max-width:1180px;margin:0 auto;padding:30px 24px 64px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px}.brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#526df5,#8a9cff);display:grid;place-items:center;color:#fff;font-size:20px;box-shadow:0 7px 16px #526df533}.brand h1{font-size:21px;letter-spacing:.2px;margin:0;font-weight:750}.brand p{margin:2px 0 0;color:var(--muted);font-size:12px}.top-actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:650;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:.15s}.btn:hover{transform:translateY(-1px)}.primary{background:var(--blue);color:white;box-shadow:0 5px 14px #526df52b}.light{background:#edf0ff;color:#4159db}.plain{background:#f3f5f9;color:#46516a}.danger{background:#fff0f1;color:var(--red)}.small{padding:6px 9px;font-size:12px;border-radius:8px}
+.hero{background:linear-gradient(115deg,#263c76,#526df5 66%,#7e8fff);border-radius:20px;padding:24px 26px;color:#fff;box-shadow:0 12px 30px #526df52a;position:relative;overflow:hidden}.hero:after{content:"";position:absolute;width:260px;height:260px;border:1px solid #ffffff20;border-radius:50%;right:-40px;top:-150px;box-shadow:0 0 0 28px #ffffff0a,0 0 0 58px #ffffff08}.hero-head{display:flex;justify-content:space-between;gap:16px;align-items:start;position:relative;z-index:1}.eyebrow{font-size:12px;opacity:.78;letter-spacing:.7px}.total{font-size:clamp(30px,4vw,42px);font-weight:800;letter-spacing:-1px;margin:5px 0 2px;font-variant-numeric:tabular-nums}.hero-date{font-size:12px;opacity:.78}.change-pill{background:#ffffff20;border:1px solid #ffffff30;border-radius:99px;padding:7px 11px;font-size:12px;white-space:nowrap}.hero-bottom{display:flex;gap:28px;flex-wrap:wrap;margin-top:19px;padding-top:15px;border-top:1px solid #ffffff2b;position:relative;z-index:1}.hero-stat span{display:block;font-size:11px;opacity:.72}.hero-stat strong{font-size:15px;font-variant-numeric:tabular-nums}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:14px}.kpi,.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}.kpi{padding:16px 17px}.kpi-top{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px}.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:6px}.kpi-value{font-size:19px;font-weight:750;margin-top:8px;letter-spacing:-.4px;font-variant-numeric:tabular-nums}.kpi-foot{color:var(--muted);font-size:11px;margin-top:3px}
+.content-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(280px,1fr);gap:14px;margin-top:14px}.panel{padding:19px}.panel-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.panel-title h2{font-size:15px;margin:0;font-weight:750}.muted{color:var(--muted)}.chart-legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:11px}.legend-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px}.chart-wrap{height:270px;position:relative}.chart-wrap canvas{width:100%;height:100%;display:block}.chart-empty{display:none;position:absolute;inset:0;place-items:center;color:var(--muted);font-size:13px}
+.alloc-layout{display:flex;align-items:center;gap:20px;min-height:220px}.donut{width:156px;height:156px;border-radius:50%;position:relative;flex:0 0 156px;background:conic-gradient(#526df5 0 25%,#18a58a 25% 50%,#e5a43b 50% 75%,#9b7bea 75% 100%)}.donut:after{content:"";position:absolute;inset:22px;border-radius:50%;background:#fff}.donut-center{position:absolute;z-index:1;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center}.donut-center strong{font-size:16px}.donut-center span{font-size:10px;color:var(--muted)}.alloc-legend{display:grid;gap:12px;flex:1;min-width:0}.alloc-item-top{display:flex;justify-content:space-between;gap:6px;font-size:11px}.alloc-item-top span:first-child{color:#59647a}.alloc-item-top strong{font-variant-numeric:tabular-nums}.alloc-bar{height:6px;background:#eff2f7;border-radius:10px;margin-top:5px;overflow:hidden}.alloc-bar i{height:100%;display:block;border-radius:10px}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:24px 0 12px}.section-head h2{font-size:17px;margin:0}.section-actions{display:flex;gap:8px;flex-wrap:wrap}.table-panel{padding:5px 17px 10px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;white-space:nowrap}th,td{text-align:right;padding:13px 10px;border-bottom:1px solid var(--line);font-size:12px}th{color:var(--muted);font-weight:600}th:first-child,td:first-child{text-align:left}tbody tr:last-child td{border-bottom:0}td.total-cell{font-weight:750;font-size:13px}td.date-cell{font-weight:650}.row-actions{display:flex;justify-content:flex-end;gap:5px}.empty{text-align:center;color:var(--muted);padding:28px!important}
+.goal-panel{margin-top:14px;padding:17px 19px}.goal-top{display:flex;justify-content:space-between;align-items:center;gap:12px}.goal-top h2{font-size:15px;margin:0}.goal-edit{display:flex;align-items:center;gap:7px}.goal-edit input{width:130px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;text-align:right}.goal-progress{height:10px;background:#edf0f6;border-radius:20px;overflow:hidden;margin:13px 0 7px}.goal-progress i{height:100%;display:block;background:linear-gradient(90deg,#526df5,#18a58a);border-radius:20px}.goal-meta{display:flex;justify-content:space-between;color:var(--muted);font-size:11px}
+.modal-backdrop{position:fixed;inset:0;background:#10182b77;display:none;align-items:center;justify-content:center;padding:18px;z-index:20}.modal-backdrop.open{display:flex}.modal{width:min(680px,100%);background:white;border-radius:18px;padding:22px;box-shadow:0 20px 70px #10182b40;max-height:90vh;overflow:auto}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:17px}.modal-head h2{margin:0;font-size:18px}.xbtn{border:0;background:#f2f4f8;border-radius:8px;width:32px;height:32px;font-size:18px;color:#64708a}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}.field input{width:100%;padding:10px 11px;border:1px solid #dfe4ed;border-radius:9px;outline:none}.field input:focus{border-color:var(--blue);box-shadow:0 0 0 3px #526df51a}.form-help{color:var(--muted);font-size:11px;margin:12px 0}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:17px}.toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,20px);padding:10px 15px;background:#202b43;color:#fff;border-radius:10px;opacity:0;pointer-events:none;transition:.2s;z-index:30;font-size:13px}.toast.show{opacity:1;transform:translate(-50%,0)}.footer-note{font-size:11px;color:var(--muted);text-align:center;margin-top:20px}
+@media(max-width:850px){.kpis{grid-template-columns:repeat(2,1fr)}.content-grid{grid-template-columns:1fr}.alloc-layout{justify-content:center}.alloc-legend{max-width:360px}}
+@media(max-width:560px){.app{padding:19px 13px 45px}.topbar{align-items:flex-start}.brand h1{font-size:18px}.top-actions{width:100%}.topbar{flex-wrap:wrap}.top-actions .btn{flex:1}.hero{padding:20px}.hero-bottom{gap:16px}.kpi{padding:13px}.kpi-value{font-size:16px}.panel{padding:15px}.chart-wrap{height:235px}.alloc-layout{flex-direction:column;gap:15px}.alloc-legend{width:100%}.formgrid{grid-template-columns:1fr}.section-head{align-items:flex-start;flex-direction:column}.goal-top{align-items:flex-start;flex-direction:column}.goal-edit{width:100%}.goal-edit input{flex:1}}
+
+.auth-gate{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 15% 10%,#e8edff,transparent 38%),var(--bg)}
+.auth-card{width:min(430px,100%);background:white;border:1px solid var(--line);border-radius:22px;padding:30px;box-shadow:0 18px 55px #182b5512}
+.auth-mark{width:48px;height:48px;border-radius:15px;background:linear-gradient(135deg,#526df5,#8a9cff);display:grid;place-items:center;color:white;font-size:24px;margin-bottom:16px}
+.auth-card h1{font-size:23px;margin:0}.auth-sub{color:var(--muted);font-size:13px;margin:7px 0 22px}.auth-card label{display:block;font-size:12px;color:var(--muted);margin:13px 0 6px}.auth-card input{width:100%;padding:12px;border:1px solid #dfe4ed;border-radius:10px;font:inherit}.auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:18px}.auth-message{background:#f3f5fa;color:#59647a;padding:10px 12px;border-radius:9px;font-size:12px;min-height:38px}.auth-foot{font-size:11px;color:var(--muted);margin:14px 0 0}.auth-warning{background:#fff3df;color:#7d5414;border-radius:10px;padding:12px;font-size:12px;margin:14px 0}.account-email{align-self:center;color:var(--muted);font-size:12px;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:560px){.auth-card{padding:23px}.account-email{max-width:100%;width:100%}}
+</style>
+</head>
+<body>
+<div id="authGate" class="auth-gate">
+  <div class="auth-card">
+    <div class="auth-mark">↗</div>
+    <h1>個人資產追蹤</h1>
+    <p class="auth-sub">登入後即可在不同裝置同步你的資產紀錄</p>
+    <div id="configWarning" class="auth-warning" style="display:none"></div>
+    <form id="authForm">
+      <label for="authEmail">電子郵件</label>
+      <input id="authEmail" type="email" autocomplete="username" placeholder="name@example.com" required>
+      <label for="authPassword">密碼</label>
+      <input id="authPassword" type="password" autocomplete="current-password" minlength="6" placeholder="至少 6 個字元" required>
+      <div class="auth-actions"><button class="btn primary" id="loginBtn" type="submit">登入</button><button class="btn light" id="signupBtn" type="button">建立帳號</button></div>
+    </form>
+    <p id="authMessage" class="auth-message">請使用同一個帳號登入不同裝置。</p>
+    <p class="auth-foot">私人資產資料儲存在 Supabase 雲端資料庫，不會寫入 GitHub 程式碼。</p>
+  </div>
+</div>
+<div class="app" id="appRoot" style="display:none">
+  <header class="topbar">
+    <div class="brand"><div class="logo">↗</div><div><h1>資產儀表板</h1><p>PERSONAL WEALTH TRACKER</p></div></div>
+    <div class="top-actions">
+      <span id="accountEmail" class="account-email"></span>
+      <button class="btn plain" id="syncBtn">↻ 同步</button>
+      <button class="btn plain" id="logoutBtn">登出</button>
+      <button class="btn light" id="exportBtn">↓ 匯出備份</button>
+      <button class="btn plain" id="importBtn">↑ 匯入備份</button>
+      <button class="btn primary" id="addBtn">＋ 新增紀錄</button>
+      <input type="file" id="importFile" accept=".json,application/json" hidden>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-head"><div><div class="eyebrow">TOTAL NET WORTH · 最新總資產</div><div class="total" id="heroTotal">NT$ 0</div><div class="hero-date" id="heroDate">尚無紀錄</div></div><div class="change-pill" id="heroChange">—</div></div>
+    <div class="hero-bottom"><div class="hero-stat"><span>歷史最高</span><strong id="peakValue">—</strong></div><div class="hero-stat"><span>累計紀錄</span><strong id="recordCount">0 筆</strong></div><div class="hero-stat"><span>距離資產目標</span><strong id="remainingValue">—</strong></div></div>
+  </section>
+
+  <section class="kpis" id="kpis">
+    <div class="kpi"><div class="kpi-top"><span><i class="dot" style="background:#526df5"></i>臺幣證券</span><span>01</span></div><div class="kpi-value" id="kpiTwdSec">—</div><div class="kpi-foot">最新紀錄</div></div>
+    <div class="kpi"><div class="kpi-top"><span><i class="dot" style="background:#18a58a"></i>臺幣銀行</span><span>02</span></div><div class="kpi-value" id="kpiTwdBank">—</div><div class="kpi-foot">最新紀錄</div></div>
+    <div class="kpi"><div class="kpi-top"><span><i class="dot" style="background:#e5a43b"></i>美金複委託證券</span><span>03</span></div><div class="kpi-value" id="kpiUsdSec">—</div><div class="kpi-foot">依輸入金額直接加總</div></div>
+    <div class="kpi"><div class="kpi-top"><span><i class="dot" style="background:#9b7bea"></i>美金銀行</span><span>04</span></div><div class="kpi-value" id="kpiUsdBank">—</div><div class="kpi-foot">依輸入金額直接加總</div></div>
+  </section>
+
+  <section class="content-grid">
+    <div class="panel">
+      <div class="panel-title"><h2>資產變化趨勢</h2><div class="chart-legend"><span><i class="legend-dot" style="background:#526df5"></i>總資產</span></div></div>
+      <div class="chart-wrap"><canvas id="trendChart"></canvas><div class="chart-empty" id="chartEmpty">新增至少一筆紀錄以查看趨勢</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><h2>資產配置</h2><span class="muted" style="font-size:11px" id="allocDate">最新紀錄</span></div>
+      <div class="alloc-layout"><div class="donut" id="donut"><div class="donut-center"><strong id="donutTotal">—</strong><span>資產總額</span></div></div><div class="alloc-legend" id="allocLegend"></div></div>
+    </div>
+  </section>
+
+  <section class="goal-panel panel">
+    <div class="goal-top"><h2>資產目標</h2><div class="goal-edit"><span class="muted" style="font-size:12px">目標金額</span><input id="goalInput" type="number" min="1" step="10000" value="5000000"><button class="btn light small" id="saveGoal">更新</button></div></div>
+    <div class="goal-progress"><i id="goalBar" style="width:0%"></i></div><div class="goal-meta"><span id="goalPercent">0% 已達成</span><span id="goalGap">距離目標 NT$ 0</span></div>
+  </section>
+
+  <div class="section-head"><h2>歷史資產紀錄</h2><div class="section-actions"><button class="btn plain small" id="csvBtn">匯出 CSV</button><button class="btn primary small" id="addBtn2">＋ 新增紀錄</button></div></div>
+  <section class="panel table-panel"><div class="table-wrap"><table><thead><tr><th>日期</th><th>臺幣證券</th><th>臺幣銀行</th><th>美金複委託證券</th><th>美金銀行</th><th>總資產</th><th>較前次變化</th><th>操作</th></tr></thead><tbody id="historyBody"></tbody></table></div></section>
+  <div class="footer-note"><span id="syncStatus">雲端資料尚未載入</span>｜資料儲存在你的 Supabase 帳戶，可跨裝置同步。仍建議定期匯出 JSON 備份；此工具不會連接銀行或券商帳戶。</div>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal"><div class="modal-head"><h2 id="modalTitle">新增資產紀錄</h2><button class="xbtn" id="closeModal" aria-label="關閉">×</button></div>
+    <form id="recordForm">
+      <div class="formgrid">
+        <div class="field"><label for="fDate">紀錄日期</label><input id="fDate" type="date" required></div>
+        <div class="field"><label for="fTwdSec">臺幣證券（NT$）</label><input id="fTwdSec" type="number" min="0" step="1" required></div>
+        <div class="field"><label for="fTwdBank">臺幣銀行（NT$）</label><input id="fTwdBank" type="number" min="0" step="1" required></div>
+        <div class="field"><label for="fUsdSec">美金複委託證券（依你的記帳幣別）</label><input id="fUsdSec" type="number" min="0" step="1" required></div>
+        <div class="field"><label for="fUsdBank">美金銀行（依你的記帳幣別）</label><input id="fUsdBank" type="number" min="0" step="1" required></div>
+      </div>
+      <p class="form-help">四個欄位會依照你目前的記帳方式直接相加。若美金資產已換算成台幣，請繼續輸入折合台幣金額，避免重複換算。</p>
+      <div class="modal-actions"><button type="button" class="btn plain" id="cancelModal">取消</button><button type="submit" class="btn primary">儲存紀錄</button></div>
+    </form>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./config.js"></script>
+<script>
+(() => {
+  const cfg = window.ASSET_APP_CONFIG || {};
+  const configured = !!(cfg.supabaseUrl && cfg.supabaseAnonKey && window.supabase && !String(cfg.supabaseUrl).includes('YOUR_') && !String(cfg.supabaseAnonKey).includes('YOUR_'));
+  const authGate = document.getElementById('authGate');
+  const appRoot = document.getElementById('appRoot');
+  const authMessage = document.getElementById('authMessage');
+  const syncStatus = document.getElementById('syncStatus');
+  const STORAGE_KEY = 'personal-asset-tracker-v1'; // 舊版本機資料匯出/匯入相容用，不作雲端資料來源
+  const fields = ['twdSec','twdBank','usdSec','usdBank'];
+  const dbFields = ['twd_sec','twd_bank','usd_sec','usd_bank'];
+  const names = ['臺幣證券','臺幣銀行','美金複委託證券','美金銀行'];
+  const colors = ['#526df5','#18a58a','#e5a43b','#9b7bea'];
+  const money = n => 'NT$ ' + Math.round(Number(n)||0).toLocaleString('en-US');
+  const num = n => Math.round(Number(n)||0).toLocaleString('en-US');
+  const total = r => fields.reduce((s,k)=>s+(Number(r[k])||0),0);
+  const dateLabel = d => {const [y,m,day]=d.split('-');return `${y}/${m}/${day}`};
+  let records = [];
+  let goal = 5000000;
+  let editingDate = null;
+  let currentUser = null;
+  let supabaseClient = null;
+
+  if (configured) {
+    supabaseClient = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+  } else {
+    document.getElementById('configWarning').style.display = 'block';
+    document.getElementById('configWarning').textContent = '尚未設定 Supabase。請先依照專案 README 設定 config.js 與雲端資料庫，再部署網站。';
+    document.getElementById('loginBtn').disabled = true;
+    document.getElementById('signupBtn').disabled = true;
+  }
+
+  const toast = msg => {const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),2300)};
+  const sorted = () => [...records].sort((a,b)=>a.date.localeCompare(b.date));
+  const setSync = msg => {syncStatus.textContent=msg;};
+  function showSignedOut(message='請使用同一個帳號登入不同裝置。'){
+    currentUser=null; records=[]; goal=5000000; appRoot.style.display='none'; authGate.style.display='grid';
+    authMessage.textContent=message;
+  }
+  function showSignedIn(user){
+    currentUser=user; authGate.style.display='none'; appRoot.style.display='block';
+    document.getElementById('accountEmail').textContent=user.email||'已登入';
+  }
+  async function loadCloud(){
+    if(!currentUser)return;
+    setSync('正在從雲端同步…');
+    const [rr,ss]=await Promise.all([
+      supabaseClient.from('asset_records').select('record_date,twd_sec,twd_bank,usd_sec,usd_bank').order('record_date',{ascending:true}),
+      supabaseClient.from('asset_settings').select('goal_amount').eq('user_id',currentUser.id).maybeSingle()
+    ]);
+    if(rr.error)throw rr.error;
+    if(ss.error)throw ss.error;
+    records=(rr.data||[]).map(r=>({date:r.record_date,twdSec:Number(r.twd_sec),twdBank:Number(r.twd_bank),usdSec:Number(r.usd_sec),usdBank:Number(r.usd_bank)}));
+    goal=ss.data?Number(ss.data.goal_amount):5000000;
+    if(!ss.data){const {error}=await supabaseClient.from('asset_settings').upsert({user_id:currentUser.id,goal_amount:goal},{onConflict:'user_id'});if(error)throw error;}
+    render();setSync(`雲端同步完成 · ${new Date().toLocaleString('zh-TW',{hour12:false})}`);
+  }
+  async function upsertRecord(entry){
+    const payload={user_id:currentUser.id,record_date:entry.date,twd_sec:entry.twdSec,twd_bank:entry.twdBank,usd_sec:entry.usdSec,usd_bank:entry.usdBank};
+    const {error}=await supabaseClient.from('asset_records').upsert(payload,{onConflict:'user_id,record_date'});
+    if(error)throw error;
+  }
+  async function saveGoalCloud(value){
+    const {error}=await supabaseClient.from('asset_settings').upsert({user_id:currentUser.id,goal_amount:value},{onConflict:'user_id'});
+    if(error)throw error;
+  }
+  function render(){
+    const list=sorted(), cur=list.at(-1), prev=list.at(-2);
+    const curTotal=cur?total(cur):0, prevTotal=prev?total(prev):0;
+    document.getElementById('heroTotal').textContent=cur?money(curTotal):'NT$ 0';
+    document.getElementById('heroDate').textContent=cur?`截至 ${dateLabel(cur.date)}`:'尚無紀錄';
+    const diff=cur&&prev?curTotal-prevTotal:null;
+    const change=document.getElementById('heroChange');
+    change.textContent=diff===null?'尚無前次紀錄':`${diff>=0?'▲':'▼'} ${money(Math.abs(diff))}（${(prevTotal?Math.abs(diff)/prevTotal*100:0).toFixed(2)}%）`;
+    document.getElementById('peakValue').textContent=list.length?money(Math.max(...list.map(total))):'—';
+    document.getElementById('recordCount').textContent=`${list.length} 筆`;
+    document.getElementById('remainingValue').textContent=cur?money(Math.max(0,goal-curTotal)):'—';
+    fields.forEach((k,i)=>document.getElementById(['kpiTwdSec','kpiTwdBank','kpiUsdSec','kpiUsdBank'][i]).textContent=cur?money(cur[k]):'—');
+    renderChart(list); renderAllocation(cur); renderTable(list); renderGoal(curTotal);
+  }
+  function renderChart(list){
+    const canvas=document.getElementById('trendChart'), empty=document.getElementById('chartEmpty');
+    const rect=canvas.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
+    const w=Math.max(280,rect.width), h=Math.max(200,rect.height);
+    canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+    const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+    if(!list.length){empty.style.display='grid';return;} empty.style.display='none';
+    const vals=list.map(total), minV=Math.min(...vals),maxV=Math.max(...vals);
+    const spread=Math.max(maxV-minV,Math.max(maxV*.025,1000));
+    const lo=minV-spread*.25,hi=maxV+spread*.25;
+    const left=66,right=17,top=18,bottom=42,plotW=w-left-right,plotH=h-top-bottom;
+    const x=i=>list.length===1?left+plotW/2:left+i*plotW/(list.length-1);
+    const y=v=>top+(hi-v)/(hi-lo)*plotH;
+    ctx.font='11px -apple-system,BlinkMacSystemFont,sans-serif';ctx.textAlign='right';ctx.textBaseline='middle';
+    for(let j=0;j<4;j++){const val=lo+(hi-lo)*j/3, yy=y(val);ctx.strokeStyle='#edf0f5';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(left,yy);ctx.lineTo(w-right,yy);ctx.stroke();ctx.fillStyle='#8a94a7';ctx.fillText((val/1000000).toFixed(2)+'M',left-10,yy);}
+    const pts=vals.map((v,i)=>[x(i),y(v)]);
+    const grad=ctx.createLinearGradient(0,top,0,h-bottom);grad.addColorStop(0,'rgba(82,109,245,.19)');grad.addColorStop(1,'rgba(82,109,245,0)');
+    ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.lineTo(pts.at(-1)[0],h-bottom);ctx.lineTo(pts[0][0],h-bottom);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+    ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.strokeStyle='#526df5';ctx.lineWidth=2.8;ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke();
+    pts.forEach((p,i)=>{ctx.beginPath();ctx.arc(p[0],p[1],4.5,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=2.5;ctx.strokeStyle='#526df5';ctx.stroke();ctx.fillStyle='#66728a';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(list[i].date.slice(5).replace('-','/'),p[0],h-bottom+13);});
+    if(list.length===1){ctx.fillStyle='#526df5';ctx.textAlign='left';ctx.fillText(money(vals[0]),pts[0][0]+10,pts[0][1]-17);}
+  }
+  function renderAllocation(cur){
+    const donut=document.getElementById('donut'),legend=document.getElementById('allocLegend');
+    if(!cur){donut.style.background='#edf0f6';legend.innerHTML='<span class="muted">尚無資產資料</span>';document.getElementById('donutTotal').textContent='—';return;}
+    const sum=total(cur);let angle=0;const stops=[];
+    fields.forEach((k,i)=>{const pct=sum?cur[k]/sum*100:0;stops.push(`${colors[i]} ${angle}% ${angle+pct}%`);angle+=pct;});
+    donut.style.background=`conic-gradient(${stops.join(',')})`;
+    document.getElementById('donutTotal').textContent=(sum/10000).toFixed(1)+'萬';
+    document.getElementById('allocDate').textContent=dateLabel(cur.date);
+    legend.innerHTML=fields.map((k,i)=>{const pct=sum?cur[k]/sum*100:0;return `<div><div class="alloc-item-top"><span><i class="dot" style="background:${colors[i]}"></i>${names[i]}</span><strong>${pct.toFixed(1)}%</strong></div><div class="alloc-bar"><i style="width:${pct}%;background:${colors[i]}"></i></div><div class="muted" style="font-size:10px;margin-top:3px">${money(cur[k])}</div></div>`}).join('');
+  }
+  function renderTable(list){
+    const body=document.getElementById('historyBody');
+    if(!list.length){body.innerHTML='<tr><td colspan="8" class="empty">目前沒有資產紀錄，請新增一筆資料。</td></tr>';return;}
+    body.innerHTML=[...list].reverse().map(r=>{
+      const index=list.findIndex(x=>x.date===r.date),delta=index>0?total(r)-total(list[index-1]):null;
+      const deltaText=delta===null?'—':`${delta>=0?'+':'−'}${num(Math.abs(delta))}`;
+      return `<tr><td class="date-cell">${dateLabel(r.date)}</td><td>${num(r.twdSec)}</td><td>${num(r.twdBank)}</td><td>${num(r.usdSec)}</td><td>${num(r.usdBank)}</td><td class="total-cell">${num(total(r))}</td><td class="${delta===null?'':delta>=0?'positive':'negative'}">${deltaText}</td><td><div class="row-actions"><button class="btn light small" data-edit="${r.date}">編輯</button><button class="btn danger small" data-delete="${r.date}">刪除</button></div></td></tr>`;
+    }).join('');
+    body.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>openModal(b.dataset.edit)));
+    body.querySelectorAll('[data-delete]').forEach(b=>b.addEventListener('click',()=>deleteRecord(b.dataset.delete)));
+  }
+  function renderGoal(curTotal){
+    document.getElementById('goalInput').value=goal;
+    const pct=goal?curTotal/goal*100:0;
+    document.getElementById('goalBar').style.width=Math.min(100,pct)+'%';
+    document.getElementById('goalPercent').textContent=`${pct.toFixed(1)}% 已達成`;
+    document.getElementById('goalGap').textContent=pct>=100?`已超過目標 ${money(curTotal-goal)}`:`距離目標 ${money(goal-curTotal)}`;
+  }
+  const modal=document.getElementById('modalBackdrop');
+  function openModal(date=null){
+    editingDate=date;document.getElementById('modalTitle').textContent=date?'編輯資產紀錄':'新增資產紀錄';
+    const r=date?records.find(x=>x.date===date):null;
+    document.getElementById('fDate').value=r?.date||new Date().toLocaleDateString('en-CA');
+    fields.forEach((k,i)=>document.getElementById(['fTwdSec','fTwdBank','fUsdSec','fUsdBank'][i]).value=r?r[k]:0);
+    modal.classList.add('open');
+  }
+  function closeModal(){modal.classList.remove('open');}
+  async function deleteRecord(date){
+    if(!confirm(`確定刪除 ${dateLabel(date)} 的資產紀錄？`))return;
+    const {error}=await supabaseClient.from('asset_records').delete().eq('user_id',currentUser.id).eq('record_date',date);
+    if(error){toast('刪除失敗：'+error.message);return;}
+    records=records.filter(r=>r.date!==date);render();setSync(`已同步刪除 · ${new Date().toLocaleString('zh-TW',{hour12:false})}`);toast('紀錄已刪除');
+  }
+  document.getElementById('recordForm').addEventListener('submit',async e=>{
+    e.preventDefault();if(!currentUser)return;
+    const date=document.getElementById('fDate').value;
+    const entry={date,twdSec:Number(document.getElementById('fTwdSec').value),twdBank:Number(document.getElementById('fTwdBank').value),usdSec:Number(document.getElementById('fUsdSec').value),usdBank:Number(document.getElementById('fUsdBank').value)};
+    if(fields.some(k=>!Number.isFinite(entry[k])||entry[k]<0)){toast('金額請輸入大於或等於 0 的數字');return;}
+    const exists=records.some(r=>r.date===date&&r.date!==editingDate);
+    if(exists){toast('這個日期已經有紀錄，請改用編輯功能');return;}
+    try{setSync('正在儲存至雲端…');await upsertRecord(entry);if(editingDate)records=records.filter(r=>r.date!==editingDate);records.push(entry);records.sort((a,b)=>a.date.localeCompare(b.date));render();closeModal();setSync(`已同步儲存 · ${new Date().toLocaleString('zh-TW',{hour12:false})}`);toast('資產紀錄已儲存至雲端');}
+    catch(err){setSync('雲端儲存失敗');toast('儲存失敗：'+err.message);}
+  });
+  document.getElementById('addBtn').addEventListener('click',()=>openModal());
+  document.getElementById('addBtn2').addEventListener('click',()=>openModal());
+  document.getElementById('closeModal').addEventListener('click',closeModal);
+  document.getElementById('cancelModal').addEventListener('click',closeModal);
+  modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});
+  document.getElementById('saveGoal').addEventListener('click',async()=>{
+    const n=Number(document.getElementById('goalInput').value);if(!Number.isFinite(n)||n<=0){toast('目標金額必須大於 0');return;}
+    try{await saveGoalCloud(n);goal=n;render();setSync(`目標已同步 · ${new Date().toLocaleString('zh-TW',{hour12:false})}`);toast('資產目標已更新');}catch(err){toast('更新失敗：'+err.message);}
+  });
+  document.getElementById('exportBtn').addEventListener('click',()=>{
+    const blob=new Blob([JSON.stringify({app:'personal-asset-tracker',version:2,exportedAt:new Date().toISOString(),records:sorted(),goal},null,2)],{type:'application/json'});
+    download(blob,`asset-backup-${new Date().toISOString().slice(0,10)}.json`);toast('備份檔已匯出');
+  });
+  document.getElementById('importBtn').addEventListener('click',()=>document.getElementById('importFile').click());
+  document.getElementById('importFile').addEventListener('change',async e=>{
+    const file=e.target.files[0];if(!file)return;
+    try{
+      const data=JSON.parse(await file.text());if(!Array.isArray(data.records))throw Error('格式錯誤');
+      const cleaned=data.records.map(r=>({date:String(r.date),twdSec:Number(r.twdSec),twdBank:Number(r.twdBank),usdSec:Number(r.usdSec),usdBank:Number(r.usdBank)}));
+      if(cleaned.some(r=>!/^\d{4}-\d{2}-\d{2}$/.test(r.date)||fields.some(k=>!Number.isFinite(r[k])||r[k]<0)))throw Error('資料欄位不正確');
+      if(new Set(cleaned.map(r=>r.date)).size!==cleaned.length)throw Error('備份內含重複日期');
+      if(!confirm(`將以備份檔中的 ${cleaned.length} 筆紀錄取代目前雲端資料，是否繼續？`))return;
+      setSync('正在匯入至雲端…');
+      const del=await supabaseClient.from('asset_records').delete().eq('user_id',currentUser.id);if(del.error)throw del.error;
+      if(cleaned.length){const payload=cleaned.map(r=>({user_id:currentUser.id,record_date:r.date,twd_sec:r.twdSec,twd_bank:r.twdBank,usd_sec:r.usdSec,usd_bank:r.usdBank}));const ins=await supabaseClient.from('asset_records').insert(payload);if(ins.error)throw ins.error;}
+      const importedGoal=Number(data.goal)>0?Number(data.goal):goal;await saveGoalCloud(importedGoal);records=cleaned;goal=importedGoal;render();setSync(`匯入完成 · ${new Date().toLocaleString('zh-TW',{hour12:false})}`);toast('備份資料已匯入雲端');
+    }catch(err){alert('匯入失敗：'+err.message);}finally{e.target.value='';}
+  });
+  document.getElementById('csvBtn').addEventListener('click',()=>{
+    const rows=[['日期','臺幣證券','臺幣銀行','美金複委託證券','美金銀行','總資產'],...sorted().map(r=>[r.date,r.twdSec,r.twdBank,r.usdSec,r.usdBank,total(r)])];
+    const csv='\uFEFF'+rows.map(row=>row.join(',')).join('\r\n');download(new Blob([csv],{type:'text/csv;charset=utf-8'}),`asset-records-${new Date().toISOString().slice(0,10)}.csv`);toast('CSV 已匯出');
+  });
+  function download(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);}
+  window.addEventListener('resize',()=>renderChart(sorted()));
+  document.getElementById('syncBtn').addEventListener('click',async()=>{try{await loadCloud();toast('雲端資料已更新');}catch(err){toast('同步失敗：'+err.message);setSync('同步失敗');}});
+  document.getElementById('logoutBtn').addEventListener('click',async()=>{const {error}=await supabaseClient.auth.signOut();if(error)toast('登出失敗：'+error.message);else showSignedOut('已登出。下次請使用同一帳號登入。');});
+  document.getElementById('authForm').addEventListener('submit',async e=>{
+    e.preventDefault();if(!supabaseClient)return;
+    const email=document.getElementById('authEmail').value.trim(),password=document.getElementById('authPassword').value;
+    authMessage.textContent='正在登入…';
+    const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+    if(error){authMessage.textContent='登入失敗：'+error.message;return;}
+    if(data.session && !currentUser){showSignedIn(data.user);try{await loadCloud();}catch(err){setSync('載入雲端資料失敗');toast('載入失敗：'+err.message);}}
+  });
+  document.getElementById('signupBtn').addEventListener('click',async()=>{
+    if(!supabaseClient)return;
+    const email=document.getElementById('authEmail').value.trim(),password=document.getElementById('authPassword').value;
+    if(!email||password.length<6){authMessage.textContent='請輸入有效 Email，密碼至少 6 個字元。';return;}
+    authMessage.textContent='正在建立帳號…';
+    const {data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:window.location.href.split('#')[0]}});
+    if(error){authMessage.textContent='建立帳號失敗：'+error.message;return;}
+    if(data.session && !currentUser){showSignedIn(data.user);try{await loadCloud();}catch(err){toast('載入失敗：'+err.message);}}
+    else authMessage.textContent='帳號已建立！請到信箱收取驗證信，完成驗證後回到此頁登入。';
+  });
+  window.addEventListener('focus',async()=>{if(currentUser){try{await loadCloud();}catch(e){setSync('雲端同步暫時失敗');}}});
+  if(configured){
+    supabaseClient.auth.onAuthStateChange((event,session)=>{
+      if(session && !currentUser){showSignedIn(session.user);setTimeout(()=>loadCloud().catch(err=>{setSync('載入失敗');toast('載入失敗：'+err.message);}),0);}
+      else if(!session && currentUser){showSignedOut();}
+    });
+    supabaseClient.auth.getSession().then(async({data,error})=>{
+      if(error){authMessage.textContent='讀取登入狀態失敗：'+error.message;return;}
+      if(data.session && !currentUser){showSignedIn(data.session.user);try{await loadCloud();}catch(err){setSync('載入失敗');toast('載入失敗：'+err.message);}}
+    });
+  }
+})();
+</script>
+</body>
+</html>
